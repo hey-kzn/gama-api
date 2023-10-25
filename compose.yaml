@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  gama-db:
+    env_file:
+      - .env
+    image: postgres:16.0
+    container_name: gama-db
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+volumes:
+  dbdata:

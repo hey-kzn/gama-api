@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
 @Entity('expenses')
-export class Expense {
+export class Expenses {
   @PrimaryGeneratedColumn('uuid')
   id: string;
   // TODO RELATION USER

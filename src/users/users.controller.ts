@@ -20,6 +20,7 @@ export class UsersController {
     return await this.usersService.findOne(id);
   }
 
+  // TODO: implémenter les querys
   @Get()
   async findAll() {
     return await this.usersService.findAll();

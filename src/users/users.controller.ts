@@ -20,12 +20,6 @@ export class UsersController {
     return await this.usersService.findOne(id);
   }
 
-  // TODO: implémenter les querys
-  @Get()
-  async findAll() {
-    return await this.usersService.findAll();
-  }
-
   @Post()
   async create(@Body() dto: CreateUserDTO) {
     return await this.usersService.create(dto);

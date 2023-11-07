@@ -20,10 +20,6 @@ export class UsersService {
     return user;
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.usersRepository.find();
-  }
-
   async create(dto: CreateUserDTO): Promise<string> {
     await this.usersRepository.create(dto);
     return 'User created with success !';

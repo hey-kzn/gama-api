@@ -12,10 +12,10 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async findOne(id: string): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id: id } });
+  async findOne(data: any): Promise<User> {
+    const user = await this.usersRepository.findOne(data);
     if (!user) {
-      throw new NotFoundException(`User with id ${id} was not found`);
+      throw new NotFoundException(`User with id ${data} was not found`);
     }
     return user;
   }

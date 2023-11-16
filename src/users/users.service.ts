@@ -20,11 +20,6 @@ export class UsersService {
     return user;
   }
 
-  async create(dto: CreateUserDTO): Promise<string> {
-    await this.usersRepository.create(dto);
-    return 'User created with success !';
-  }
-
   async update(id: string, dto: UpdateUserDTO): Promise<string> {
     const existingUser = await this.findOne(id);
     if (!existingUser) {

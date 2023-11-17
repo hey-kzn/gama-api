@@ -20,11 +20,6 @@ export class UsersController {
     return await this.usersService.findOne(id);
   }
 
-  @Post()
-  async create(@Body() dto: CreateUserDTO) {
-    return await this.usersService.create(dto);
-  }
-
   @Patch(':id')
   async update(@Param() id: string, @Body() dto: UpdateUserDTO) {
     return await this.usersService.update(id, dto);

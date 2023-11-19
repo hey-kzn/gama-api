@@ -5,10 +5,11 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class ExpenseCategoriesService {
-  constructor(
+  /*constructor(
     @InjectRepository(ExpenseCategories)
     private expenseCategoriesReposity: Repository<ExpenseCategories>,
   ) {}
+  */
 
   async findAll() {
     return 'todo';

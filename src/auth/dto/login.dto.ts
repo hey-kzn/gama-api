@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, isString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginDTO {
   @IsNotEmpty()

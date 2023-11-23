@@ -1,44 +1,69 @@
 import { Injectable } from '@nestjs/common';
 import { RegisterDTO } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from 'src/users/entity/user.entity';
 import { JwtService } from '@nestjs/jwt';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private userService: UsersService,
     private jwtService: JwtService,
   ) {}
 
-  async hashPassword(data: string) {
+  async hashData(data: string) {
     return bcrypt.hash(data, 10);
   }
 
   async getTokens(userId: string, email: string) {
-    const [at, rt] = await Promise.all({});
-    const accessToken = this.jwtService.signAsync(
-      {
-        sub: userId,
-        email,
-      },
-      {
-        expiresIn: 60 * 15,
-      },
-    );
+    const [at, rt] = await Promise.all([
+      // at
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          email,
+        },
+        {
+          secret: process.env.JWT_ACCESS_CONST,
+          expiresIn: '15m',
+        },
+      ),
+      // rt
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          email,
+        },
+        {
+          secret: process.env.JWT_ACESS_REFRESH,
+          expiresIn: '7d',
+        },
+      ),
+    ]);
+
+    return {
+      access_token: at,
+      refresh_token: rt,
+    };
   }
 
   async register({ username, email, password }: RegisterDTO) {
-    const hashPassword = await this.hashPassword(password);
-    const user = this.usersRepository.create({
+    const hashPassword = await this.hashData(password);
+    const newUser = await this.userService.create({
       username: username,
       email: email,
       password: hashPassword,
     });
+    const tokens = await this.getTokens(newUser.id, newUser.email);
+
+    return tokens;
   }
+
+  async updateHashedRT(userId: string, rt: string) {
+    const hashedRT = await this.hashData(rt);
+    // TODO IMPL CREATE USER SERVICE
+  }
+
   login() {}
   logout() {}
   refreshTokens() {}

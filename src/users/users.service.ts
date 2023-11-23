@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { UpdateUserDTO } from './dto/update-user-dto';
+import { CreateUserDTO } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -17,6 +18,18 @@ export class UsersService {
       throw new NotFoundException(`User with id ${data} was not found`);
     }
     return user;
+  }
+
+  async create(data: CreateUserDTO): Promise<User> {
+    let user = await this.findOne(data.email);
+    if (!user) {
+      throw new NotFoundException(`A user already exist`);
+    }
+
+    // Instancier la nouvelle entité sans la sauvegarder
+    user = await this.usersRepository.create(data);
+    // Entité sauvegardé dans la base de donnée
+    return await this.usersRepository.save(user);
   }
 
   async update(id: string, dto: UpdateUserDTO): Promise<string> {

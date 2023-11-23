@@ -27,4 +27,6 @@ export class User {
     onUpdate: 'CURRENT_TIMESTAMP(6)',
   })
   updated_at: Date;
+  @Column({ type: 'varchar' })
+  hashed_rt: string;
 }

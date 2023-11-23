@@ -16,17 +16,17 @@ export class User {
   email: string;
   @Column({ type: 'varchar' })
   password: string;
+
   @CreateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTRAMP(6)',
+    type: 'timestamp with time zone',
   })
-  created_at: Date;
+  created_at: string;
+
   @UpdateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP(6)',
-    onUpdate: 'CURRENT_TIMESTAMP(6)',
+    type: 'timestamp with time zone',
   })
-  updated_at: Date;
-  @Column({ type: 'varchar' })
+  updated_at: string;
+
+  @Column({ type: 'varchar', nullable: true })
   hashed_rt: string;
 }

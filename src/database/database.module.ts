@@ -14,7 +14,7 @@ import { User } from 'src/users/entity/user.entity';
         password: process.env.POSTGRES_PASSWORD,
         database: process.env.POSTGRES_DB,
         entites: [User],
-        synchronize: false,
+        synchronize: true,
         autoLoadEntities: true,
       }),
       inject: [ConfigService],

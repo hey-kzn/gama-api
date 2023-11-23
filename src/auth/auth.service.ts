@@ -11,6 +11,29 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  /**
+   * Logique metier quand l'utilisateur s'enregistre
+   * @returns JWT token
+   */
+  async register({ username, email, password }: RegisterDTO) {
+    const hashPassword = await this.hashData(password);
+
+    const newUser = await this.userService.create({
+      username: username,
+      email: email,
+      password: hashPassword,
+    });
+    const tokens = await this.getTokens(newUser.id, newUser.email);
+    await this.updateHashedRT(newUser.id, tokens.refresh_token);
+
+    return tokens;
+  }
+
+  async updateHashedRT(userId: string, rt: string) {
+    const hashedRT = await this.hashData(rt);
+    await this.userService.updateRT(userId, hashedRT);
+  }
+
   async hashData(data: string) {
     return bcrypt.hash(data, 10);
   }
@@ -46,25 +69,4 @@ export class AuthService {
       refresh_token: rt,
     };
   }
-
-  async register({ username, email, password }: RegisterDTO) {
-    const hashPassword = await this.hashData(password);
-    const newUser = await this.userService.create({
-      username: username,
-      email: email,
-      password: hashPassword,
-    });
-    const tokens = await this.getTokens(newUser.id, newUser.email);
-
-    return tokens;
-  }
-
-  async updateHashedRT(userId: string, rt: string) {
-    const hashedRT = await this.hashData(rt);
-    // TODO IMPL CREATE USER SERVICE
-  }
-
-  login() {}
-  logout() {}
-  refreshTokens() {}
 }

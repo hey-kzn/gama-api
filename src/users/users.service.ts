@@ -15,9 +15,25 @@ export class UsersService {
   ) {}
 
   async findOne(data): Promise<User> {
-    return await this.usersRepository.findOne({
-      where: { email: data },
-    });
+    try {
+      // Essaye d'abord de trouver par ID
+      const userById = await this.usersRepository.findOne({
+        where: { id: data },
+      });
+
+      if (userById) {
+        return userById;
+      }
+
+      // Essaye de trouver par l'email
+      const userByEmail = await this.usersRepository.findOne({
+        where: { email: data },
+      });
+
+      return userByEmail;
+    } catch {
+      throw new UserNotExistsException();
+    }
   }
 
   async create(data: CreateUserDTO): Promise<User> {
@@ -44,13 +60,5 @@ export class UsersService {
 
     this.usersRepository.remove(user);
     return `User with id ${id} was successfuly removed`;
-  }
-
-  async updateRT(id: string, rt: string) {
-    const user = await this.findOne(id);
-    if (!user) {
-      throw new NotFoundException(`User with the id: ${id} dont exist`);
-    }
-    await this.usersRepository.merge(user, { hashed_rt: rt });
   }
 }

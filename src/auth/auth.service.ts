@@ -2,12 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { RegisterDTO } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from 'src/users/users.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/users/entity/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private userService: UsersService,
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
     private jwtService: JwtService,
   ) {}
 
@@ -15,23 +18,22 @@ export class AuthService {
    * Logique metier quand l'utilisateur s'enregistre
    * @returns JWT token
    */
-  async register({ username, email, password }: RegisterDTO) {
-    const hashPassword = await this.hashData(password);
+  async register(data: RegisterDTO) {
+    const hashPassword = await this.hashData(data.password);
 
-    const newUser = await this.userService.create({
-      username: username,
-      email: email,
+    // Instancie l'user sans l'enregistrer en base
+    const newUser = this.usersRepository.create({
+      email: data.email,
+      username: data.username,
       password: hashPassword,
     });
+
     const tokens = await this.getTokens(newUser.id, newUser.email);
-    await this.updateHashedRT(newUser.id, tokens.refresh_token);
+    const hashedRT = await this.hashData(tokens.refresh_token);
 
+    await this.usersRepository.merge(newUser, { hashed_rt: hashedRT });
+    await this.usersRepository.save(newUser);
     return tokens;
-  }
-
-  async updateHashedRT(userId: string, rt: string) {
-    const hashedRT = await this.hashData(rt);
-    await this.userService.updateRT(userId, hashedRT);
   }
 
   async hashData(data: string) {
@@ -47,7 +49,7 @@ export class AuthService {
           email,
         },
         {
-          secret: process.env.JWT_ACCESS_CONST,
+          secret: 'at',
           expiresIn: '15m',
         },
       ),
@@ -58,7 +60,7 @@ export class AuthService {
           email,
         },
         {
-          secret: process.env.JWT_ACESS_REFRESH,
+          secret: 'rt',
           expiresIn: '7d',
         },
       ),

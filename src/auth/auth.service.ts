@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { RegisterDTO } from './dto/register.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entity/user.entity';
 import { Repository } from 'typeorm';
+import { LoginDTO } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,6 +34,20 @@ export class AuthService {
 
     await this.usersRepository.merge(newUser, { hashed_rt: hashedRT });
     await this.usersRepository.save(newUser);
+    return tokens;
+  }
+
+  async login(dto: LoginDTO) {
+    const user = await this.usersRepository.findOneBy({
+      username: dto.username,
+    });
+    if (!user) throw new ForbiddenException('Access Denied');
+
+    const passwordMatches = await bcrypt.compare(dto.username, user.password);
+    if (!passwordMatches) throw new ForbiddenException('Access Denied');
+
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.usersRepository.merge(user, { hashed_rt: tokens.refresh_token });
     return tokens;
   }
 

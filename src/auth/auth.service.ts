@@ -51,6 +51,14 @@ export class AuthService {
     return tokens;
   }
 
+  async logout(userId: string) {
+    try {
+      await this.usersRepository.update(userId, { hashed_rt: null });
+    } catch (err) {
+      throw new Error(err);
+    }
+  }
+
   async hashData(data: string) {
     return bcrypt.hash(data, 10);
   }

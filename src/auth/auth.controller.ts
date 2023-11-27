@@ -1,8 +1,17 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDTO } from './dto/register.dto';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { LoginDTO } from './dto/login.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -20,21 +29,25 @@ export class AuthController {
 
   @Post('/local/login')
   async login(@Res() res: Response, @Body() dto: LoginDTO) {
-    const {} = await this.authService.login(dto);
+    const tokens = await this.authService.login(dto);
 
     return res.status(HttpStatus.OK).json({
       message: 'The user has been successfully connected',
-      data: 
+      data: tokens,
     });
   }
 
-  /*@Post('/logout')
-  async logout() {
-    this.authService.logout();
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/logout')
+  async logout(@Req() req: Request) {
+    const user = req.user;
+    console.log(user);
+    //await this.authService.logout(user.sub['sub']);
   }
 
+  @UseGuards(AuthGuard('jwt-refresh'))
   @Post('/refresh')
   async refreshTokens() {
-    this.authService.refreshTokens();
-  }*/
+    return 'todo'; //this.authService.refreshTokens();
+  }
 }

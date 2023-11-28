@@ -39,10 +39,11 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post('/logout')
-  async logout(@Req() req: Request) {
+  async logout(@Req() req: Request, @Res() res: Response) {
     const user = req.user;
-    console.log(user);
-    //await this.authService.logout(user.sub['sub']);
+    await this.authService.logout(user['sub']);
+
+    return res.status(HttpStatus.OK);
   }
 
   @UseGuards(AuthGuard('jwt-refresh'))

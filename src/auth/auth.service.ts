@@ -59,6 +59,8 @@ export class AuthService {
     }
   }
 
+  async refreshTokens(userId: string, rt: string) {}
+
   async hashData(data: string) {
     return bcrypt.hash(data, 10);
   }

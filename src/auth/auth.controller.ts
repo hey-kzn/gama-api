@@ -11,7 +11,8 @@ import { AuthService } from './auth.service';
 import { RegisterDTO } from './dto/register.dto';
 import { Request, Response } from 'express';
 import { LoginDTO } from './dto/login.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { RtGuard } from 'src/common/guards/rt.guard';
+import { AtGuard } from 'src/common/guards/at.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -37,21 +38,29 @@ export class AuthController {
     });
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  @UseGuards(AtGuard)
   @Post('/logout')
   async logout(@Req() req: Request, @Res() res: Response) {
     const user = req.user;
     await this.authService.logout(user['sub']);
 
-    return res.status(HttpStatus.OK);
+    return res.status(HttpStatus.OK).json({
+      message: 'The user has been successfully disconnected',
+    });
   }
 
-  @UseGuards(AuthGuard('jwt-refresh'))
+  @UseGuards(RtGuard)
   @Post('/refresh')
   async refreshTokens(@Req() req: Request, @Res() res: Response) {
     const user = req.user;
-    await this.authService.refreshTokens(user['id'], user['refresh_tokens']);
+    const tokens = await this.authService.refreshTokens(
+      user['sub'],
+      user['refreshToken'],
+    );
 
-    return res.status(HttpStatus.OK);
+    return res.status(HttpStatus.OK).json({
+      message: 'The refresh tokens has been succesfully refresh',
+      data: tokens,
+    });
   }
 }

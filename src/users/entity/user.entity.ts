@@ -28,5 +28,5 @@ export class User {
   updated_at: string;
 
   @Column({ type: 'varchar', nullable: true })
-  hashed_rt: string;
+  hashed_rt?: string;
 }

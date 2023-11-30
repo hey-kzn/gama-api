@@ -39,27 +39,41 @@ export class AuthService {
 
   async login(dto: LoginDTO) {
     const user = await this.usersRepository.findOneBy({
-      username: dto.username,
+      email: dto.email,
     });
-    if (!user) throw new ForbiddenException('Access Denied');
+    if (!user) throw new ForbiddenException('Access denied');
 
-    const passwordMatches = await bcrypt.compare(dto.username, user.password);
-    if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    const passwordMatches = await bcrypt.compare(dto.password, user.password);
+    if (!passwordMatches) throw new ForbiddenException('Access denied');
 
     const tokens = await this.getTokens(user.id, user.email);
-    await this.usersRepository.merge(user, { hashed_rt: tokens.refresh_token });
+    const hashedRT = await this.hashData(tokens.refresh_token);
+    await this.usersRepository.merge(user, {
+      hashed_rt: hashedRT,
+    });
+    await this.usersRepository.save(user);
+
     return tokens;
   }
 
   async logout(userId: string) {
-    try {
-      await this.usersRepository.update(userId, { hashed_rt: null });
-    } catch (err) {
-      throw new Error(err);
-    }
+    await this.usersRepository.update(userId, { hashed_rt: null });
   }
 
-  async refreshTokens(userId: string, rt: string) {}
+  async refreshTokens(userId: string, rt: string) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    if (!user) throw new ForbiddenException('Access denied');
+
+    const rtMatches = await bcrypt.compare(rt, user.hashed_rt);
+    if (!rtMatches) throw new ForbiddenException('Access denied');
+
+    const tokens = await this.getTokens(user.id, user.email);
+    const hashedRT = await this.hashData(tokens.refresh_token);
+    await this.usersRepository.merge(user, { hashed_rt: hashedRT });
+    await this.usersRepository.save(user);
+
+    return tokens;
+  }
 
   async hashData(data: string) {
     return bcrypt.hash(data, 10);

@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { UpdateUserDTO } from './dto/update-user-dto';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { UserAlreadyExistsException } from 'src/helper/exceptions/user-already-exists.exception';
-import { UserNotExistsException } from 'src/helper/exceptions/user-not-exists.exception';
+import { UserAlreadyExistsException } from 'src/common/exceptions/user-already-exists.exception';
+import { UserNotExistsException } from 'src/common/exceptions/user-not-exists.exception';
 
 @Injectable()
 export class UsersService {

@@ -4,6 +4,6 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 export class PaymentCategories {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-  @Column()
+  @Column({ type: 'varchar', length: '120' })
   name: string;
 }
